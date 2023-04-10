@@ -19,10 +19,10 @@ Ad esempio per la route POST:/cavalli/proprietari avrei:
 
 ```mermaid
 graph TD;
-    root-->/cavalli{get,post,put,delete};
-    root-->/proprietari{get,post,put,delete};
-    /cavalli-->/proprietari{get}
-    /proprietari{get}-->/:id
+    root-->A(/cavalli);
+    root-->C(/proprietari);
+    A-->B(/proprietari)
+    C-->/:id
 ```
 ```
 root
