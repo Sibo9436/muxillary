@@ -33,10 +33,16 @@ di suo non lo fa
 
 La cosa più importante sarà poi fare dei benchmark e capire se e come modificare il sistema dei path per evitare problemi di scaling
 
+Per la questione performance allo stato attuale non so bene quanto pesi il fatto di avere degli oggetti interi per il path
+
+Importante sarà poi gestire le collisioni tra path!!
 
 Nel frattempo mi stanno venendo in mente altre diciottomila idee per creare un sistema più simile a quello ad esempio di SpringBoot 
 ma in realtà non ha molto senso visto che l'idea principale è mantenere un mux che sia perfettamente compatibile con il pacchetto http
 e che sia il meno ingombrante possibile
+
+Tra le cose da fare devo poter mettere come minimo la possibilità di definire una funzione che restituisca un 404 customizzato, non dovrebbe essere difficile
+
 
 # Quickstart
 ## Installation 
