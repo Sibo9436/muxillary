@@ -1,4 +1,4 @@
-> :warning **Warning**: this project is still under heavy development and should not be considered ready for usage!
+> **Warning**: this project is still under heavy development and should not be considered ready for usage!
 > both the api and underlying implementation are subject to change
 # Muxillary
 It's the dumbest pun I could think of.
