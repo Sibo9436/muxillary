@@ -1,5 +1,5 @@
 > **Warning**: this project is still under heavy development and should not be considered ready for usage!
-> both the api and underlying implementation are subject to change
+> Both the api and underlying implementation are subject to change
 # Muxillary
 It's the dumbest pun I could think of.
 
@@ -11,7 +11,24 @@ It aims to integrate seamlessly with the golang http package, while providing fu
 ## Installation 
 `go get github.com/Sibo9436/muxillary`
 
-## Usage
+## Example
+```go
+import (
+    "net/http"
+    "github.com/Sibo9436/muxillary"
+)
+
+
+func main(){
+    mux := muxillary.NewMuxillaryHandler("/")
+    mux.Get("test/:id", func (w http.ResponseWriter, r *http.Request){
+        id := muxillary.Value("id", r)
+        //Do something with your request
+        //-----
+    })
+    http.ListenAndServe(":3000", mux)
+}
+```
 
 # Ideas
 Secondo me potrebbe essere divertente implementarlo utilizzando una struttura ad albero:
