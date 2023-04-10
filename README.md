@@ -14,29 +14,19 @@ It aims to integrate seamlessly with the golang http package, while providing fu
 ## Usage
 
 # Ideas
-Secondo me potrebbe essere divertente implementarlo utilizzando una struttura ad albero
-Ad esempio per la route POST:/cavalli/proprietari avrei:
+Secondo me potrebbe essere divertente implementarlo utilizzando una struttura ad albero:
 
 ```mermaid
 graph TD;
     root-->A(/cavalli);
     root-->C(/proprietari);
     A-->B(/proprietari)
-    C-->/:id
+    C-->x(/:id)
+    B-->y(/:id)
+    A-->z(/:id)
 ```
-```
-root
-|
-|-----/cavalli
-|        |
-|        |
-|        |---- /proprietari{post:http.HandlerFunc,delete:http.HandlerFunc}
-|
-|-----/proprietari{get:handler}
-        |
-        |---/:id{handler}
 
-```
+Bisogna però vedere che effetto potrebbe avere sulla performance
 
 In questo modo, quando vado a popolare i miei endpoints se trovo un endpoint che potrebbe creare un conflitto posso andare in errore gioiosamente
 
