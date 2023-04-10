@@ -1,8 +1,17 @@
+> :warning **Warning**: this project is still under heavy development and should not be considered ready for usage!
+> both the api and underlying implementation are subject to change
 # Muxillary
-It's the dumbest pun I could find
+It's the dumbest pun I could think of.
 
-This aims to be an extremely simple and as compliant to the golang standard for http handlers
-as possible http route parser and multiplexer.
+Muxillary is a simple http route parser and multiplexer.
+
+It aims to integrate seamlessly with the golang http package, while providing functionality missing in the standard library.
+
+# Quickstart
+## Installation 
+`go get github.com/Sibo9436/muxillary`
+
+## Usage
 
 # Ideas
 Secondo me potrebbe essere divertente implementarlo utilizzando una struttura ad albero
@@ -44,9 +53,4 @@ e che sia il meno ingombrante possibile
 Tra le cose da fare devo poter mettere come minimo la possibilità di definire una funzione che restituisca un 404 customizzato, non dovrebbe essere difficile
 
 
-# Quickstart
-## Installation 
-`go get github.com/Sibo9436/muxillary`
-
-## Usage
 
