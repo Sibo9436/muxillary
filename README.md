@@ -17,6 +17,13 @@ It aims to integrate seamlessly with the golang http package, while providing fu
 Secondo me potrebbe essere divertente implementarlo utilizzando una struttura ad albero
 Ad esempio per la route POST:/cavalli/proprietari avrei:
 
+```mermaid
+graph TD;
+    root-->/cavalli{get,post,put,delete};
+    root-->/proprietari{get,post,put,delete};
+    /cavalli-->/proprietari{get}
+    /proprietari{get}-->/:id
+```
 ```
 root
 |
