@@ -25,12 +25,14 @@ type pathNode struct{
 type MuxillaryHandler struct{
     root *pathNode
     basepath string
+    notFound  func(http.ResponseWriter)
 }
 
 func NewMuxillaryHandler(basepath string) *MuxillaryHandler{
   return &MuxillaryHandler{
     root: newPathNode("/"),
     basepath: basepath,
+    notFound: notFound,
   }
 }
 
@@ -57,16 +59,26 @@ func (m*MuxillaryHandler) setMapping(path string) *pathNode{
   fullpath = strings.TrimLeft(fullpath, "/")
   paths := strings.Split(fullpath, "/")
   current := m.root
-  fmt.Println(fullpath)
-  fmt.Printf("%+v", paths)
   for _,p := range paths{
     if _, has := current.children[p]; !has{
-      fmt.Println("Inserting ", p , " into ", current.value)
       current.children[p] = newPathNode(p)
     }
     current = current.children[p]
   }
   return current
+}
+
+func (m*MuxillaryHandler) Delete(path string , f http.HandlerFunc){
+  current := m.setMapping(path)
+  current.setMapping(DELETE, f)
+}
+func (m*MuxillaryHandler) Patch(path string , f http.HandlerFunc){
+  current := m.setMapping(path)
+  current.setMapping(PATCH, f)
+}
+func (m*MuxillaryHandler) Put(path string , f http.HandlerFunc){
+  current := m.setMapping(path)
+  current.setMapping(PUT, f)
 }
 func (m*MuxillaryHandler) Post(path string , f http.HandlerFunc){
   current := m.setMapping(path)
@@ -85,6 +97,15 @@ func notFound(w http.ResponseWriter){
   msg,_:= json.Marshal(m)
   w.Write(msg)
 }
+func Value(key string, r* http.Request) string{
+  res := r.Context().Value("mux_"+key)
+  if res != nil{
+    return res.(string)
+  }
+  //TODO: decidere se implementare un sistema di errori un po' più smart
+  return ""
+
+}
 func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
   fmt.Println("Received request at ", r.URL)
   paths := strings.Split(strings.TrimLeft(r.URL.Path,"/"), "/")
@@ -92,18 +113,16 @@ func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
   for _, path := range paths{
     c, has := current.children[path]
     //SCHIFO , RISOLVERE ASSOLUTAMENTE
-    for k, v := range current.children{
-      fmt.Printf("%s: %+v\n", k, v)
+    for _, v := range current.children{
       if v.isAny{
         c = v
         has = true
         ctx := context.WithValue(r.Context(),"mux_"+c.value,path)
-        fmt.Printf("Adding %s to context, with value %s\n",c.value, path)
         r = r.WithContext(ctx)
       }
     }
     if  !has{
-      notFound(rw)
+      m.notFound(rw)
       return
     }
     current = c
@@ -114,7 +133,7 @@ func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
   //Meglio magari controllare se http2 ha una qualche specifica per questi pathParams
   
   if !found {
-    notFound(rw)
+    m.notFound(rw)
     return
   }
   mapping(rw, r)

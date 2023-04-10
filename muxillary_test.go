@@ -6,13 +6,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mux "github.com/Sibo9436/muxillary"
+	"github.com/Sibo9436/muxillary"
 )
 
 func TestMux(t *testing.T){
   req := httptest.NewRequest(http.MethodGet,"/test/test/testing/123",nil)
   res := httptest.NewRecorder()
-  mux:= mux.NewMuxillaryHandler("/test")
+  mux:= muxillary.NewMuxillaryHandler("/test")
   mux.Get("/test/testing/:id",func(w http.ResponseWriter, r* http.Request){
     w.Write([]byte("CAIAOAADFAOSD"))
   })
@@ -33,7 +33,7 @@ func TestMux(t *testing.T){
 func TestMuxPathParam(t *testing.T){
   req := httptest.NewRequest(http.MethodGet,"/test/123",nil)
   res := httptest.NewRecorder()
-  mux := mux.NewMuxillaryHandler("/")
+  mux := muxillary.NewMuxillaryHandler("/")
   mux.Get("/test/:id",func(w http.ResponseWriter, r *http.Request){
     fmt.Printf("%+v\n",r.Context())
     id  := r.Context().Value("mux_id").(string)
@@ -46,10 +46,24 @@ func TestMuxPathParam(t *testing.T){
 
 }
 
+
+func TestMuxPath(t * testing.T){
+  mux := muxillary.NewMuxillaryHandler("")
+  mux.Delete("/test/:first/:second/:third", func(w http.ResponseWriter, r *http.Request){
+    w.WriteHeader(http.StatusAccepted)
+    t.Logf("First: %s, Second: %s, Third: %s\n",muxillary.Value("first",r),
+  muxillary.Value("second",r), muxillary.Value("third",r))
+  })
+  req := httptest.NewRequest(http.MethodDelete,"/test/2134/caciucco/asshole", nil)
+  res := httptest.NewRecorder()
+  mux.ServeHTTP(res,req)
+
+}
+
 func TestMux_404(t *testing.T){
   req := httptest.NewRequest(http.MethodGet,"/test/test/testing/123",nil)
   res := httptest.NewRecorder()
-  mux:= mux.NewMuxillaryHandler("/test")
+  mux:= muxillary.NewMuxillaryHandler("/test")
   mux.Post("/test/testing/:id",func(w http.ResponseWriter, r* http.Request){
     w.Write([]byte("CAIAOAADFAOSD"))
   })
