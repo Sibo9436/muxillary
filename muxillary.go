@@ -36,6 +36,9 @@ func NewMuxillaryHandler(basepath string) *MuxillaryHandler{
 
 func newPathNode(path string) *pathNode{
   isAny := strings.HasPrefix(path, ":")
+  if isAny {
+    path = strings.TrimLeft(path,":")
+  }
   return &pathNode{
     value : path, 
     isAny: isAny,
@@ -84,15 +87,9 @@ func notFound(w http.ResponseWriter){
 }
 func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
   fmt.Println("Received request at ", r.URL)
-  ctx := context.WithValue(r.Context(),"mux",true)
-
-  r.WithContext(ctx)
   paths := strings.Split(strings.TrimLeft(r.URL.Path,"/"), "/")
-  fmt.Printf("%+v",paths)
   current := m.root
   for _, path := range paths{
-    fmt.Println("Lookign for: ", path)
-  fmt.Printf("%+v\n",current.children)
     c, has := current.children[path]
     //SCHIFO , RISOLVERE ASSOLUTAMENTE
     for k, v := range current.children{
@@ -100,23 +97,25 @@ func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
       if v.isAny{
         c = v
         has = true
+        ctx := context.WithValue(r.Context(),"mux_"+c.value,path)
+        fmt.Printf("Adding %s to context, with value %s\n",c.value, path)
+        r = r.WithContext(ctx)
       }
     }
     if  !has{
-      fmt.Println(current.value, " is missing mapping ", path)
       notFound(rw)
       return
     }
     current = c
   }
-  fmt.Println("Found mapping")
 
   mapping, found := current.mappings[HttpMethod(r.Method)]
   //TODO: assolutamente da risolvere!
   //Meglio magari controllare se http2 ha una qualche specifica per questi pathParams
   
-  if !found && !current.isAny{
+  if !found {
     notFound(rw)
+    return
   }
   mapping(rw, r)
 }
