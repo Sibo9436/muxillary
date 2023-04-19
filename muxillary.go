@@ -48,6 +48,13 @@ func newPathNode(path string) *pathNode{
     children: make(map[string]*pathNode),
   }
 }
+func (p*pathNode) addPathVar(pathVar string){
+  if len(p.value)>0{
+    p.value = p.value +"/"+pathVar
+  }else{
+    p.value = pathVar
+  }
+}
 
 func (p*pathNode) setMapping(mapping HttpMethod,f http.HandlerFunc){
   p.mappings[mapping] = f
@@ -60,8 +67,15 @@ func (m*MuxillaryHandler) setMapping(path string) *pathNode{
   paths := strings.Split(fullpath, "/")
   current := m.root
   for _,p := range paths{
+    isAny := strings.HasPrefix(path, ":")
+    path = p
+    if isAny {
+      p = "*"
+    }
     if _, has := current.children[p]; !has{
-      current.children[p] = newPathNode(p)
+      current.children[p] = newPathNode(path)
+    }else{
+      current.children[p].addPathVar(path)
     }
     current = current.children[p]
   }
@@ -98,6 +112,7 @@ func notFound(w http.ResponseWriter){
   w.Write(msg)
 }
 func Value(key string, r* http.Request) string{
+  //qui si potrebbe poi vedere anche se parsare altre cose in altri modi 
   res := r.Context().Value("mux_"+key)
   if res != nil{
     return res.(string)
@@ -107,6 +122,9 @@ func Value(key string, r* http.Request) string{
 
 }
 func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
+  //Ricordarsi di estrarre questa funzione in modo da
+  //poter creare una forma di componibilità
+  //Voglio poter definire più Router e SubRouter
   fmt.Println("Received request at ", r.URL)
   paths := strings.Split(strings.TrimLeft(r.URL.Path,"/"), "/")
   current := m.root
@@ -117,8 +135,10 @@ func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
       if v.isAny{
         c = v
         has = true
-        ctx := context.WithValue(r.Context(),"mux_"+c.value,path)
-        r = r.WithContext(ctx)
+        for _,p := range strings.Split(v.value,"/"){
+          ctx := context.WithValue(r.Context(),"mux_"+p,path)
+          r = r.WithContext(ctx)
+        }
       }
     }
     if  !has{
@@ -138,12 +158,4 @@ func (m* MuxillaryHandler) ServeHTTP(rw http.ResponseWriter,r* http.Request){
   }
   mapping(rw, r)
 }
-
-
-
-
-
-
-
-
 

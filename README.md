@@ -47,6 +47,32 @@ Bisogna però vedere che effetto potrebbe avere sulla performance
 
 In questo modo, quando vado a popolare i miei endpoints se trovo un endpoint che potrebbe creare un conflitto posso andare in errore gioiosamente
 
+## Rules 
+Per il mapping mi ispiro almeno parzialmente a SpringBoot
+
+Intanto devo dare la precedenza ai path definiti:
+
+Ad esempio se ho `/contatti` e `/:nome` prima controllo che la parola non sia contatti 
+e poi passo a nome 
+
+In secondo luogo non devono essere permesse due path variables allo stesso livello
+ovvero `/:first` `/:second` non è una descrizione corretta, mentre
+`:first` `:second/count` lo è. Questo è forse il problema più interessante da risolvere
+ovvero capire come non usare regexp ma comunque essere in grado di matchare correttamente il path inserito
+
+Inoltre lo standard openAPI definisce le pathvariables con {nome} e usa ; e * per indicare che formato 
+ci si aspetta di ricevere per oggetti come mappe o liste 
+
+Per adesso questa funzionalità resta OOS ma non è detto che non venga aggiunta later.
+
+Un'idea iniziale potrebbe essere quella di avere un nodo con una mappa di possibili figli e un singolo nodo figlio "any"
+che a sua volta avrà una sua mappa di possibili figli e una mappa di possibili valori per il nome del parametro
+IN REALTA', sarà una tamarrata ok, ma si potrebbe semplicemente popolare tutti i valori possibili con il valore rilevato e risolvere il 
+problema del lookeahed
+
+Ad esempio se il la mia pathvaribale a quell'altezza può essere sia :first che :second, valorizzo semplicemente entrambe
+
+
 ## Todo 
 Per adesso siamo riusciti a superare un test molto basilare
 Bisogna andare a vedere un pochino come ci aspettiamo essere una specifica decente per come gestire i path parameters 
