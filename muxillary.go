@@ -52,6 +52,8 @@ func newPathNode(path string) *pathNode {
 	}
 }
 func (p *pathNode) addPathVar(pathVar string) {
+
+	pathVar = strings.TrimLeft(pathVar, ":")
 	if len(p.value) > 0 {
 		p.value = p.value + "/" + pathVar
 	} else {
@@ -70,7 +72,7 @@ func (m *MuxillaryHandler) setMapping(path string) *pathNode {
 	paths := strings.Split(fullpath, "/")
 	current := m.root
 	for _, p := range paths {
-		isAny := strings.HasPrefix(path, ":")
+		isAny := strings.HasPrefix(p, ":")
 		path = p
 		if isAny {
 			p = "*"
@@ -114,6 +116,7 @@ func notFound(w http.ResponseWriter) {
 	msg, _ := json.Marshal(m)
 	w.Write(msg)
 }
+
 func Value(key string, r *http.Request) string {
 	//qui si potrebbe poi vedere anche se parsare altre cose in altri modi
 	res := r.Context().Value("mux_" + key)
@@ -124,28 +127,36 @@ func Value(key string, r *http.Request) string {
 	return ""
 
 }
+func print(node *pathNode) {
+	fmt.Println(node.value, node.isAny)
+	for _, child := range node.children {
+		print(child)
+	}
+}
 func (m *MuxillaryHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	//Ricordarsi di estrarre questa funzione in modo da
 	//poter creare una forma di componibilità
 	//Voglio poter definire più Router e SubRouter
+	print(m.root)
 	fmt.Println("Received request at ", r.URL)
 	path := strings.Split(r.URL.Path, "?")[0]
 	paths := strings.Split(strings.TrimLeft(path, "/"), "/")
 	current := m.root
 	for _, path := range paths {
-		c, has := current.children[path]
-		//SCHIFO , RISOLVERE ASSOLUTAMENTE
-		for _, v := range current.children {
-			if v.isAny {
-				c = v
-				has = true
-				for _, p := range strings.Split(v.value, "/") {
+		fmt.Println("Checking path", path)
+		c, found := current.children[path]
+		if !found {
+			c, found = current.children["*"]
+			fmt.Println("Checking if has any", path)
+			fmt.Printf("%+v", current.children)
+			if found {
+				for _, p := range strings.Split(c.value, "/") {
 					ctx := context.WithValue(r.Context(), "mux_"+p, path)
 					r = r.WithContext(ctx)
 				}
 			}
 		}
-		if !has {
+		if !found {
 			m.notFound(rw)
 			return
 		}
