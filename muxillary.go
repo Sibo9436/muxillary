@@ -3,7 +3,6 @@ package muxillary
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -127,28 +126,29 @@ func Value(key string, r *http.Request) string {
 	return ""
 
 }
-func print(node *pathNode) {
-	fmt.Println(node.value, node.isAny)
-	for _, child := range node.children {
-		print(child)
-	}
-}
+
+// func print(node *pathNode) {
+// fmt.Println(node.value, node.isAny)
+// for _, child := range node.children {
+// print(child)
+// }
+// }
 func (m *MuxillaryHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	//Ricordarsi di estrarre questa funzione in modo da
 	//poter creare una forma di componibilità
 	//Voglio poter definire più Router e SubRouter
-	print(m.root)
-	fmt.Println("Received request at ", r.URL)
+	////print(m.root)
+	//fmt.Println("Received request at ", r.URL)
 	path := strings.Split(r.URL.Path, "?")[0]
 	paths := strings.Split(strings.TrimLeft(path, "/"), "/")
 	current := m.root
 	for _, path := range paths {
-		fmt.Println("Checking path", path)
+		//fmt.Println("Checking path", path)
 		c, found := current.children[path]
 		if !found {
 			c, found = current.children["*"]
-			fmt.Println("Checking if has any", path)
-			fmt.Printf("%+v", current.children)
+			//fmt.Println("Checking if has any", path)
+			//fmt.Printf("%+v", current.children)
 			if found {
 				for _, p := range strings.Split(c.value, "/") {
 					ctx := context.WithValue(r.Context(), "mux_"+p, path)
