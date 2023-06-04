@@ -47,6 +47,8 @@ Bisogna però vedere che effetto potrebbe avere sulla performance
 
 In questo modo, quando vado a popolare i miei endpoints se trovo un endpoint che potrebbe creare un conflitto posso andare in errore gioiosamente
 
+> Suggestions welcome: should muxillary have a default way of handling errors? Or should we keep it as close to the http.Handler api as possible?
+
 ## Rules 
 Per il mapping mi ispiro almeno parzialmente a SpringBoot
 
